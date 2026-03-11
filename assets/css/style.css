@@ -1,0 +1,606 @@
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+:root {
+  --white:        #FAFAF8;        /* Fondo principal, blanco cálido */
+  --ink:          #1C1C1A;        /* Color del texto principal, casi negro */
+  --muted:        #6B6B65;        /* Texto secundario, gris medio */
+  --accent:       #2563EB;        /* Azul principal para enlaces y detalles */
+  --accent-light: #EEF3FF;        /* Azul muy claro para fondos de badges */
+  --border:       #E5E5E0;        /* Color de los bordes y separadores */
+  --card:         #FFFFFF;        /* Fondo de las tarjetas */
+  --serif:        'DM Serif Display', Georgia, serif;  /* Fuente para títulos */
+  --sans:         'DM Sans', sans-serif;               /* Fuente para texto */
+  --radius:       12px;           /* Radio de esquinas redondeadas */
+  --transition:   0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Velocidad de animaciones */
+}
+
+
+/* ── ESTILOS BASE ────────────────────────────────────
+   Configuración global del documento.
+─────────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--sans);            /* Fuente de todo el texto */
+  background: var(--white);            /* Color de fondo */
+  color: var(--ink);                   /* Color del texto */
+  line-height: 1.65;                   /* Espacio entre líneas (legibilidad) */
+  font-size: 16px;                     /* Tamaño base de fuente */
+  -webkit-font-smoothing: antialiased; /* Suaviza las fuentes en pantallas Mac */
+}
+
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Todas las secciones tienen el mismo espaciado vertical */
+section {
+  padding: 96px 0;
+}
+
+/* Separador entre secciones (excepto la última) */
+section:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+
+nav {
+  position: sticky;          /* Se queda fija al hacer scroll */
+  top: 0;                    /* Pegada al borde superior */
+  z-index: 100;              /* Por encima del resto del contenido */
+  background: rgba(250, 250, 248, 0.88); /* Fondo semi-transparente */
+  backdrop-filter: blur(12px);           /* Efecto blur/desenfoque detrás */
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;                     /* Flexbox: coloca elementos en fila */
+  align-items: center;               /* Los centra verticalmente */
+  justify-content: space-between;    /* Logo a la izquierda, links a la derecha */
+  height: 60px;
+}
+
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--ink);
+  text-decoration: none;     /* Quita el subrayado del enlace */
+  letter-spacing: -0.01em;   /* Kerning: junta un poco las letras */
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;          /* Espacio entre cada enlace */
+  list-style: none;   /* Quita los puntos de la lista */
+}
+
+.nav-links a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--transition); /* Anima el cambio de color al hover */
+  letter-spacing: 0.01em;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--ink);
+}
+
+.nav-burger {
+  display: none;             /* Oculto por defecto, se muestra en @media móvil */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-burger span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform var(--transition), opacity var(--transition);
+}
+
+/* Animación: cuando el menú está abierto, las 3 líneas forman una X */
+.nav-burger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+
+#hero {
+  padding: 120px 0 96px;
+}
+
+.hero-tag {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;      
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+
+.hero-name {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+/* El nombre en cursiva y color azul */
+.hero-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-desc {
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 520px;
+  font-weight: 300;
+  line-height: 1.75;
+  margin-bottom: 44px;
+}
+
+/* Contenedor de botones en fila */
+.hero-btns {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap; /* Si no caben, pasan a la siguiente línea */
+}
+
+
+.btn {
+  display: inline-flex;      
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1.5px solid transparent;
+}
+
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: #2a2a28;
+  transform: translateY(-1px);  
+  box-shadow: 0 8px 24px rgba(17,17,16,0.18);
+}
+
+
+.btn-outline {
+  border-color: var(--border);
+  color: var(--ink);
+  background: transparent;
+}
+.btn-outline:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+
+/* ── SECCIÓN SOBRE MÍ 
+   Grid de dos columnas: foto | texto.*/
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas del mismo ancho */
+  gap: 64px;
+  align-items: center;
+}
+
+/* Imagen de perfil cuadrada con esquinas redondeadas */
+.about-img {
+  width: 100%;
+  aspect-ratio: 1;           /* Mantiene proporción 1:1 (cuadrado) */
+  border-radius: 16px;
+  object-fit: cover;         /* La imagen rellena sin deformarse */
+}
+
+.img-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #EEF3FF 0%, #DBEAFE 100%);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.img-placeholder svg { opacity: 0.5; }
+
+
+/* ── TIPOGRAFÍA DE SECCIÓN 
+   Estilos reutilizados en todas las secciones. */
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* Título principal de cada sección */
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+/* Párrafo de texto descriptivo */
+.section-body {
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+/* Lista de detalles (ciudad, experiencia...) */
+.about-details {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.about-detail span {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+
+/* ── HABILIDADES 
+   Grid auto-adaptable: las tarjetas se reorganizan
+   solos según el espacio disponible. */
+#skills .section-body {
+  margin-bottom: 48px;
+  max-width: 560px;
+}
+
+/* auto-fit + minmax: crea tantas columnas como quepan,
+   cada una de mínimo 200px */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Tarjeta de categoría de habilidades */
+.skill-category {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.skill-category:hover {
+  box-shadow: 0 8px 32px rgba(17,17,16,0.07);
+  transform: translateY(-2px);
+}
+
+/* Título de la categoría en azul y mayúsculas */
+.skill-cat-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+/* Contenedor de etiquetas en fila que se rompen si no caben */
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Etiqueta individual de tecnología */
+.skill-tag {
+  background: var(--accent-light);
+  color: var(--ink);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+
+/*  PROYECTOS 
+   Tarjetas en columna vertical.
+   Cada tarjeta tiene grid interno: info | botones. */
+.projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+/* Tarjeta de proyecto */
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  display: grid;
+  grid-template-columns: 1fr auto; /* Info ocupa todo, botones solo lo necesario */
+  gap: 24px;
+  align-items: start;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.project-card:hover {
+  box-shadow: 0 12px 48px rgba(17,17,16,0.1);
+  transform: translateY(-3px);
+}
+
+/* Número del proyecto en cursiva */
+.project-number {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.project-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.project-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 300;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  max-width: 520px;
+}
+
+/* Etiquetas de tecnologías del proyecto */
+.project-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.project-tag {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Columna de botones del proyecto */
+.project-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+
+/* Botón de proyecto base */
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.project-link:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+/* Variante primaria (Visualizar): fondo oscuro */
+.project-link.primary {
+  background: var(--ink);
+  color: var(--white);
+  border-color: var(--ink);
+}
+
+.project-link.primary:hover {
+  background: #2a2a28;
+}
+
+
+/*  CONTACTO  */
+#contact {
+  padding-bottom: 120px;
+}
+
+.contact-inner {
+  max-width: 560px;
+}
+
+.contact-email {
+  margin-top: 20px;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.contact-email a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-email a:hover {
+  text-decoration: underline;
+}
+
+/* Botones de redes en fila */
+.contact-links {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 22px;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  transition: all var(--transition);
+}
+
+.contact-link:hover {
+  border-color: var(--ink);
+  box-shadow: 0 4px 16px rgba(17,17,16,0.1);
+  transform: translateY(-1px);
+}
+
+
+/*  FOOTER  */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+
+/* ── ANIMACIONES 
+   Los elementos con clase .fade-up empiezan invisibles
+   y desplazados hacia abajo. Cuando el JS detecta que
+   son visibles en pantalla, añade la clase .visible
+   que los hace aparecer con transición suave. */
+.fade-up {
+  opacity: 0;                          /* Invisible al principio */
+  transform: translateY(24px);         /* Desplazado 24px hacia abajo */
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;                          /* Visible */
+  transform: translateY(0);            /* En su posición original */
+}
+
+
+/* RESPONSIVE (DISEÑO MÓVIL) 
+   @media aplica estilos solo cuando la pantalla
+   es menor a 680px (smartphones). */
+@media (max-width: 680px) {
+
+  /* El grid de 2 columnas pasa a 1 columna */
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  /* La foto no ocupa todo el ancho en móvil */
+  .about-img-wrap {
+    max-width: 240px;
+  }
+
+  /* Las tarjetas de proyecto también pasan a 1 columna */
+  .project-card {
+    grid-template-columns: 1fr;
+  }
+
+  /* Los botones del proyecto van en fila en móvil */
+  .project-links {
+    flex-direction: row;
+    min-width: unset;
+  }
+
+  .nav-burger {
+    display: flex;
+  }
+
+  /* El menú de navegación se oculta y aparece solo al abrir */
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 16px 24px;
+    gap: 16px;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+}
