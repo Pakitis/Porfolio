@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- HTML5 - versión moderna del lenguaje de marcado web -->
 <html lang="es">
 
 <head>
@@ -7,15 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Base de Datos</title>
 
-  <!-- Fuentes: Syne para títulos (igual que LocalScan), Inter para texto -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── Reset: eliminamos estilos por defecto del navegador ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Variables de color y diseño ──
-       Tema claro profesional, consistente con el portfolio */
     :root {
       --bg:        #F8F8F6;
       --surface:   #FFFFFF;
@@ -23,7 +18,7 @@
       --border:    #E5E5E0;
       --ink:       #1C1C1A;
       --muted:     #6B6B65;
-      --accent:    #2563EB;        /* Mismo azul que el portfolio */
+      --accent:    #2563EB;        
       --accent-bg: #EEF3FF;
       --green:     #16A34A;
       --green-bg:  #DCFCE7;
@@ -49,11 +44,10 @@
       font-size: 15px;
     }
 
-    /* ════════════════════════════════════════
+    /*
        HEADER
        Barra superior con logo y título del sistema.
-       Borde inferior para separar del contenido.
-    ════════════════════════════════════════ */
+       Borde inferior para separar del contenido. */
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -110,18 +104,14 @@
       text-transform: uppercase;
     }
 
-    /* ════════════════════════════════════════
-       LAYOUT PRINCIPAL
-       Dos columnas: sidebar de nav + contenido principal.
-       El sidebar tiene ancho fijo; el contenido ocupa el resto.
-    ════════════════════════════════════════ */
+    
     .app {
       display: grid;
       grid-template-columns: 220px 1fr;
       min-height: calc(100vh - 60px);
     }
 
-    /* ── Sidebar de navegación ── */
+    /*  Sidebar de navegación  */
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
@@ -143,7 +133,7 @@
     }
     .sidebar-label:first-child { margin-top: 0; }
 
-    /* Botón de navegación del sidebar */
+   
     .nav-btn {
       display: flex;
       align-items: center;
@@ -181,12 +171,7 @@
       max-width: 960px;
     }
 
-    /* ════════════════════════════════════════
-       VISTAS (TABS)
-       Cada "vista" es un div que se muestra u oculta
-       según la sección seleccionada en el sidebar.
-       display:none = oculto, display:block = visible.
-    ════════════════════════════════════════ */
+    
     .view { display: none; }
     .view.active { display: block; }
 
@@ -214,10 +199,7 @@
       margin-top: 4px;
     }
 
-    /* ════════════════════════════════════════
-       TARJETAS DE STATS (DASHBOARD)
-       Grid de 4 columnas con métricas clave.
-    ════════════════════════════════════════ */
+    
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -255,11 +237,7 @@
       margin-top: 4px;
     }
 
-    /* ════════════════════════════════════════
-       TABLA
-       Estructura clásica de base de datos:
-       cabecera fija, filas alternadas, acciones por fila.
-    ════════════════════════════════════════ */
+  
     .table-wrapper {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -268,7 +246,7 @@
       box-shadow: var(--shadow);
     }
 
-    /* Barra superior de la tabla con búsqueda y botón añadir */
+  
     .table-toolbar {
       display: flex;
       align-items: center;
@@ -285,7 +263,7 @@
       gap: 10px;
     }
 
-    /* Campo de búsqueda */
+ 
     .search-input {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -301,7 +279,7 @@
     .search-input:focus { border-color: var(--accent); }
     .search-input::placeholder { color: var(--muted); }
 
-    /* La tabla ocupa el 100% del ancho del contenedor */
+  
     table {
       width: 100%;
       border-collapse: collapse;  /* Sin espacio entre bordes de celdas */
@@ -370,13 +348,13 @@
       align-items: center;
     }
 
-    /* Columna de acciones (editar/eliminar) */
+ 
     .actions {
       display: flex;
       gap: 6px;
     }
 
-    /* Botones de acción pequeños */
+  
     .action-btn {
       padding: 5px 10px;
       border-radius: 6px;
@@ -397,19 +375,13 @@
       border-color: var(--ink);
     }
 
-    /* Botón eliminar: rojo al hover */
     .action-btn.delete:hover {
       background: var(--red-bg);
       border-color: var(--red);
       color: var(--red);
     }
 
-    /* ════════════════════════════════════════
-       FORMULARIO / MODAL
-       Panel lateral que aparece desde la derecha
-       al hacer clic en "Añadir" o "Editar".
-       Se muestra/oculta con JS añadiendo .open.
-    ════════════════════════════════════════ */
+   
     .panel-overlay {
       position: fixed;
       inset: 0;                          /* Cubre toda la pantalla */
@@ -441,7 +413,6 @@
       overflow-y: auto;
     }
 
-    /* Al añadir .open, el panel entra desde la derecha */
     .side-panel.open { transform: translateX(0); }
 
     .panel-header {
@@ -458,7 +429,6 @@
       font-weight: 700;
     }
 
-    /* Botón X para cerrar el panel */
     .panel-close {
       width: 32px; height: 32px;
       border-radius: 8px;
@@ -473,7 +443,6 @@
 
     .panel-body { padding: 24px; flex: 1; }
 
-    /* ── Campos del formulario ── */
     .form-group { margin-bottom: 20px; }
 
     .form-label {
@@ -484,7 +453,6 @@
       margin-bottom: 7px;
     }
 
-    /* required* en rojo */
     .form-label span { color: var(--red); }
 
     .form-input,
@@ -512,7 +480,6 @@
       margin-top: 5px;
     }
 
-    /* Fila de dos columnas en el formulario */
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -527,9 +494,7 @@
       justify-content: flex-end;
     }
 
-    /* ════════════════════════════════════════
-       BOTONES PRINCIPALES
-    ════════════════════════════════════════ */
+    /* BOTONES PRINCIPALES*/
     .btn {
       display: inline-flex;
       align-items: center;
@@ -544,7 +509,6 @@
       transition: all 0.15s;
     }
 
-    /* Primario: azul sólido */
     .btn-primary {
       background: var(--accent);
       color: white;
@@ -555,7 +519,6 @@
       box-shadow: 0 4px 12px rgba(37,99,235,0.3);
     }
 
-    /* Secundario: borde */
     .btn-secondary {
       background: var(--surface);
       color: var(--ink);
@@ -563,18 +526,15 @@
     }
     .btn-secondary:hover { background: var(--surface2); }
 
-    /* Peligro: rojo */
     .btn-danger {
       background: var(--red);
       color: white;
     }
     .btn-danger:hover { background: #b91c1c; }
 
-    /* ════════════════════════════════════════
-       NOTIFICACIÓN TOAST
+    /* NOTIFICACIÓN TOAST
        Mensaje de confirmación temporal que aparece
-       arriba a la derecha y desaparece solo.
-    ════════════════════════════════════════ */
+       arriba a la derecha y desaparece solo. */
     .toast {
       position: fixed;
       top: 24px; right: 24px;
@@ -600,10 +560,8 @@
     .toast.error   { background: var(--red); }
     .toast.info    { background: var(--accent); }
 
-    /* ════════════════════════════════════════
-       DIÁLOGO DE CONFIRMACIÓN
-       Modal centrado para confirmar acciones destructivas (eliminar).
-    ════════════════════════════════════════ */
+    /* DIÁLOGO DE CONFIRMACIÓN
+       Modal centrado para confirmar acciones destructivas */
     .dialog-overlay {
       position: fixed;
       inset: 0;
@@ -624,7 +582,6 @@
       animation: dialogIn 0.2s ease;
     }
 
-    /* Animación de entrada del dialog: escala de 0.9 a 1 */
     @keyframes dialogIn {
       from { opacity: 0; transform: scale(0.9); }
       to   { opacity: 1; transform: scale(1); }
@@ -660,10 +617,8 @@
       justify-content: flex-end;
     }
 
-    /* ════════════════════════════════════════
-       ACTIVIDAD RECIENTE (DASHBOARD)
-       Lista de las últimas acciones realizadas.
-    ════════════════════════════════════════ */
+    /* ACTIVIDAD RECIENTE (DASHBOARD)
+       Lista de las últimas acciones realizadas.*/
     .activity-list {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -704,10 +659,8 @@
       white-space: nowrap;
     }
 
-    /* ════════════════════════════════════════
-       ESTADO VACÍO
-       Mensaje cuando no hay resultados en la tabla.
-    ════════════════════════════════════════ */
+    /* ESTADO VACÍO
+       Mensaje cuando no hay resultados en la tabla. */
     .empty-state {
       text-align: center;
       padding: 48px 20px;
@@ -716,10 +669,8 @@
     .empty-state svg { opacity: 0.3; margin-bottom: 12px; }
     .empty-state p { font-size: 0.88rem; }
 
-    /* ════════════════════════════════════════
-       PAGINACIÓN
-       Controles para navegar entre páginas de la tabla.
-    ════════════════════════════════════════ */
+    /* PAGINACIÓN
+       Controles para navegar entre páginas de la tabla. */
     .pagination {
       display: flex;
       align-items: center;
@@ -747,7 +698,6 @@
     .page-btn:hover { background: var(--surface2); }
     .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    /* ── Responsive (móvil) ── */
     @media (max-width: 768px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { display: none; }
@@ -757,7 +707,6 @@
       .main { padding: 20px 16px; }
     }
 
-    /* ── Scrollbar personalizada ── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -766,13 +715,11 @@
 
 <body>
 
-  <!-- ════════════════════════════════════════
-       HEADER: logo y título de la aplicación
-  ════════════════════════════════════════ -->
+  <!-- HEADER: logo y título de la aplicación -->
   <header>
     <div class="header-left">
       <div class="logo">
-        <!-- SVG de base de datos dibujado con código -->
+     
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <ellipse cx="12" cy="5" rx="9" ry="3"/>
           <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
@@ -787,16 +734,14 @@
     <div class="header-badge">Demo Interactiva</div>
   </header>
 
-  <!-- ════════════════════════════════════════
-       APP: sidebar + contenido
-  ════════════════════════════════════════ -->
+ 
   <div class="app">
 
-    <!-- ── SIDEBAR DE NAVEGACIÓN ── -->
+
     <aside class="sidebar">
       <div class="sidebar-label">Principal</div>
 
-      <!-- Cada nav-btn muestra una sección distinta al hacer clic -->
+    
       <button class="nav-btn active" onclick="mostrarVista('dashboard', this)">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
@@ -814,7 +759,7 @@
           <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
         </svg>
         Usuarios
-        <!-- Badge con el contador de registros -->
+    
         <span style="margin-left:auto;background:var(--surface2);color:var(--muted);font-size:0.7rem;padding:1px 7px;border-radius:100px" id="badge-usuarios">0</span>
       </button>
 
@@ -839,13 +784,9 @@
 
     </aside>
 
-    <!-- ════════════════════════════════════════
-         CONTENIDO PRINCIPAL
-         Contiene 4 vistas que se muestran/ocultan.
-    ════════════════════════════════════════ -->
+   
     <main class="main">
 
-      <!-- ── VISTA: DASHBOARD ── -->
       <div class="view active" id="view-dashboard">
 
         <div class="view-header">
@@ -855,7 +796,7 @@
           </div>
         </div>
 
-        <!-- Tarjetas de estadísticas -->
+  
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon" style="background:var(--accent-bg)">
@@ -1012,9 +953,7 @@
       </div><!-- fin view-productos -->
 
 
-      <!-- ── VISTA: CONSULTAS SQL ──
-           Muestra las consultas PHP+MySQL reales que se usarían
-           en un entorno con servidor. Solo para visualización. -->
+      
       <div class="view" id="view-sql">
         <div class="view-header">
           <div>
@@ -1023,10 +962,10 @@
           </div>
         </div>
 
-        <!-- Cada bloque explica una operación CRUD -->
+      
         <div style="display:flex;flex-direction:column;gap:20px">
 
-          <!-- CREAR -->
+         
           <div class="table-wrapper" style="overflow:visible">
             <div class="table-toolbar" style="cursor:default">
               <div style="display:flex;align-items:center;gap:10px">
@@ -1116,17 +1055,13 @@ exit;</code></pre>
           </div>
 
         </div>
-      </div><!-- fin view-sql -->
+      </div>
 
-    </main><!-- fin .main -->
-  </div><!-- fin .app -->
+    </main>
+  </div>
 
 
-  <!-- ════════════════════════════════════════
-       PANEL LATERAL DE FORMULARIO
-       Aparece al hacer clic en "Añadir" o "Editar".
-       El overlay oscurece el fondo.
-  ════════════════════════════════════════ -->
+
   <div class="panel-overlay" id="overlay" onclick="cerrarPanel()"></div>
 
   <div class="side-panel" id="side-panel">
@@ -1222,9 +1157,7 @@ exit;</code></pre>
   </div>
 
 
-  <!-- ════════════════════════════════════════
-       DIÁLOGO DE CONFIRMACIÓN DE ELIMINACIÓN
-  ════════════════════════════════════════ -->
+  <!--  DIÁLOGO DE CONFIRMACIÓN DE ELIMINACIÓN -->
   <div class="dialog-overlay" id="dialog-overlay">
     <div class="dialog">
       <div class="dialog-icon">
@@ -1253,23 +1186,19 @@ exit;</code></pre>
   </div>
 
 
-  <!-- Notificación toast -->
+ 
   <div class="toast" id="toast"></div>
 
 
-  <!-- ════════════════════════════════════════
-       JAVASCRIPT
-       Toda la lógica de la app: estado, CRUD simulado,
-       renderizado de tablas, navegación entre vistas.
-  ════════════════════════════════════════ -->
+  
   <script>
 
-    // ════════════════════════════════════════════════════
+ 
     // BASE DE DATOS SIMULADA EN MEMORIA
     // En la versión real con PHP+MySQL, estos datos vendrían
     // de consultas SELECT a la base de datos del servidor.
     // Aquí los guardamos en arrays de JavaScript para la demo.
-    // ════════════════════════════════════════════════════
+ 
 
     // Array de usuarios: cada objeto es como una fila en la tabla usuarios
     let usuarios = [
@@ -1306,11 +1235,7 @@ exit;</code></pre>
     let editandoId = null; // ID del registro que se está editando
 
 
-    // ════════════════════════════════════════════════════
-    // NAVEGACIÓN ENTRE VISTAS
-    // Muestra la sección seleccionada y oculta las demás.
-    // También marca el botón del sidebar como activo.
-    // ════════════════════════════════════════════════════
+  
     function mostrarVista(nombre, btn) {
       // Ocultar todas las vistas quitando la clase .active
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1327,11 +1252,11 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
+   
     // RENDERIZADO DE TABLAS
     // Genera el HTML de cada fila y lo inserta en el tbody.
     // También actualiza los contadores y badges del sidebar.
-    // ════════════════════════════════════════════════════
+   
     function renderTabla(tipo, datos) {
       // Si no nos pasan datos filtrados, usamos el array completo
       const lista = datos || (tipo === 'usuarios' ? usuarios : productos);
@@ -1357,26 +1282,25 @@ exit;</code></pre>
         return;
       }
 
-      // .map() transforma cada objeto en su fila HTML, .join('') los une
       tbody.innerHTML = lista.map(item => tipo === 'usuarios'
         ? renderFilaUsuario(item)
         : renderFilaProducto(item)
       ).join('');
 
-      // Actualizamos el dashboard también
+      
       actualizarDashboard();
     }
 
 
-    // ── Genera el HTML de una fila de usuario ──
+   
     function renderFilaUsuario(u) {
-      // Colores del badge según el rol
+     
       const rolColor = u.rol === 'Admin' ? 'badge-red'
         : u.rol === 'Editor' ? 'badge-yellow' : 'badge-blue';
 
       const estadoColor = u.estado === 'Activo' ? 'badge-green' : 'badge-red';
 
-      // Inicial del nombre para el avatar (primera letra en mayúscula)
+     
       const inicial = u.nombre.charAt(0).toUpperCase();
 
       return `
@@ -1419,7 +1343,7 @@ exit;</code></pre>
     }
 
 
-    // ── Genera el HTML de una fila de producto ──
+  
     function renderFilaProducto(p) {
       const estadoColor = p.estado === 'Activo' ? 'badge-green'
         : p.estado === 'Agotado' ? 'badge-red' : 'badge-yellow';
@@ -1462,30 +1386,26 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
-    // GESTIÓN DEL PANEL LATERAL
-    // abrirPanel: abre el panel en modo creación
-    // cerrarPanel: lo cierra y limpia los campos
-    // ════════════════════════════════════════════════════
+
     function abrirPanel(tipo) {
       panelTipo = tipo;
       panelModo = 'crear';
       editandoId = null;
 
-      // Actualizar el título del panel
+   
       document.getElementById('panel-title').textContent =
         tipo === 'usuario' ? 'Añadir usuario' : 'Añadir producto';
 
-      // Mostrar el formulario correcto y ocultar el otro
+      
       document.getElementById('panel-form-usuario').style.display =
         tipo === 'usuario' ? 'block' : 'none';
       document.getElementById('panel-form-producto').style.display =
         tipo === 'producto' ? 'block' : 'none';
 
-      // Limpiar los campos del formulario
+  
       limpiarFormulario(tipo);
 
-      // Abrir panel y overlay (añadimos .open para activar la animación CSS)
+ 
       document.getElementById('side-panel').classList.add('open');
       document.getElementById('overlay').classList.add('open');
     }
@@ -1511,12 +1431,10 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
-    // EDITAR: abre el panel con los datos existentes
-    // Busca el registro por ID en el array y rellena el formulario.
-    // ════════════════════════════════════════════════════
+
+  
     function editarUsuario(id) {
-      // .find() busca el primer elemento que cumpla la condición
+   
       const u = usuarios.find(u => u.id === id);
       if (!u) return;
 
@@ -1561,11 +1479,11 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
+
     // GUARDAR: crea o actualiza según el modo del panel
     // En un sistema real con PHP, aquí se haría un fetch()
     // a una API que ejecutaría el INSERT o UPDATE en MySQL.
-    // ════════════════════════════════════════════════════
+
     function guardar() {
       if (panelTipo === 'usuario') guardarUsuario();
       else guardarProducto();
@@ -1591,7 +1509,7 @@ exit;</code></pre>
           nombre, email, rol, estado,
           creado: new Date().toISOString().slice(0,10) // Fecha de hoy
         };
-        usuarios.push(nuevo); // .push() añade al final del array
+        usuarios.push(nuevo);
         registrarActividad('create', 'usuario', nombre);
         mostrarToast('✅ Usuario "' + nombre + '" creado correctamente', 'success');
 
@@ -1641,16 +1559,13 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
-    // ELIMINAR: con confirmación previa
-    // Primero mostramos el diálogo, y solo borramos
-    // si el usuario confirma haciendo clic en "Sí, eliminar".
-    // ════════════════════════════════════════════════════
+    
+
     function confirmarEliminar(tipo, id, nombre) {
       document.getElementById('dialog-desc').textContent =
         `¿Seguro que quieres eliminar "${nombre}"? Esta acción no se puede deshacer.`;
 
-      // Asignamos la función de eliminación al botón de confirmación
+     
       document.getElementById('dialog-confirm-btn').onclick = () => eliminar(tipo, id, nombre);
 
       document.getElementById('dialog-overlay').classList.add('open');
@@ -1662,7 +1577,7 @@ exit;</code></pre>
 
     function eliminar(tipo, id, nombre) {
       if (tipo === 'usuario') {
-        // .filter() devuelve un nuevo array sin el elemento eliminado
+     
         usuarios = usuarios.filter(u => u.id !== id);
         registrarActividad('delete', 'usuario', nombre);
         renderTabla('usuarios');
@@ -1677,16 +1592,15 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
     // BÚSQUEDA EN TIEMPO REAL
     // Filtra el array según el texto del input y rerenderiza.
     // Se ejecuta en cada tecla pulsada (oninput en el HTML).
-    // ════════════════════════════════════════════════════
+  
     function filtrarTabla(tipo, query) {
-      const q = query.toLowerCase(); // Convertimos a minúsculas para comparar sin distinción
+      const q = query.toLowerCase(); 
 
       if (tipo === 'usuarios') {
-        // .filter() devuelve solo los usuarios cuyo nombre o email contienen el texto
+        
         const filtrados = usuarios.filter(u =>
           u.nombre.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
@@ -1703,15 +1617,15 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
+
     // REGISTRO DE ACTIVIDAD
     // Guarda cada operación en el array actividad
     // para mostrarla en el dashboard.
-    // ════════════════════════════════════════════════════
+    
     function registrarActividad(accion, tipo, nombre) {
       totalOps++;
 
-      // Mensajes y colores según la acción
+   
       const config = {
         create: { texto: 'creado',     color: '#16A34A', emoji: '➕' },
         update: { texto: 'actualizado', color: '#D97706', emoji: '✏️' },
@@ -1722,24 +1636,24 @@ exit;</code></pre>
       const ahora = new Date();
       const hora = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
-      // Añadimos al principio (unshift) para que el más reciente aparezca primero
+     
       actividad.unshift({
         texto: `${c.emoji} <strong>${nombre}</strong> — ${tipo} ${c.texto}`,
         hora,
         color: c.color
       });
 
-      // Limitamos a 10 entradas para no llenar la pantalla
+   
       if (actividad.length > 10) actividad.pop();
 
       actualizarDashboard();
     }
 
 
-    // ════════════════════════════════════════════════════
+  
     // ACTUALIZAR DASHBOARD
     // Recalcula los contadores y renderiza la lista de actividad.
-    // ════════════════════════════════════════════════════
+  
     function actualizarDashboard() {
       // Actualizamos los números de las tarjetas de stats
       document.getElementById('dash-usuarios').textContent  = usuarios.length;
@@ -1766,11 +1680,11 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
+
     // NOTIFICACIÓN TOAST
     // Muestra un mensaje temporal en la esquina superior.
     // type: 'success' | 'error' | 'info'
-    // ════════════════════════════════════════════════════
+ 
     function mostrarToast(msg, type = 'success') {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -1780,11 +1694,11 @@ exit;</code></pre>
     }
 
 
-    // ════════════════════════════════════════════════════
+
     // INICIALIZACIÓN
     // Cuando la página carga, inicializamos el dashboard
     // con los datos de ejemplo.
-    // ════════════════════════════════════════════════════
+   
     actualizarDashboard();
 
     // Precargamos badges con los conteos iniciales
