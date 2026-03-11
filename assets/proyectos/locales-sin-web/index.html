@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalScan — Locales sin presencia web</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --surface2:  #1C1C26;
+      --border:    #2A2A38;
+      --accent:    #00E5A0;
+      --accent2:   #FF6B6B;
+      --warn:      #FFB347;
+      --text:      #E8E8F0;
+      --muted:     #6B6B85;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--accent); display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .logo-icon svg { color: var(--bg); }
+    .logo-text h1 {
+      font-family: var(--font-head);
+      font-size: 1.3rem; font-weight: 800;
+      letter-spacing: -0.02em; color: var(--text);
+    }
+    .logo-text p { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── Layout ── */
+    .app {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      height: calc(100vh - 73px);
+    }
+
+    /* ── Panel izquierdo ── */
+    .panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    .search-area {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-label {
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+
+    .search-box {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .search-input {
+      flex: 1; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.88rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .btn {
+      padding: 10px 16px; border-radius: 8px;
+      font-family: var(--font-head); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: #00cf90; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .gps-btn {
+      width: 100%; justify-content: center;
+      background: var(--surface2); color: var(--muted);
+      border: 1px dashed var(--border);
+    }
+    .gps-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Filtros */
+    .filters {
+      display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .filter-chip.active {
+      background: var(--accent); color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      padding: 14px 24px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 20px;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: var(--font-head); font-size: 1.3rem; font-weight: 700;
+    }
+    .stat-num.green { color: var(--accent); }
+    .stat-num.red   { color: var(--accent2); }
+    .stat-num.warn  { color: var(--warn); }
+    .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+    /* Results list */
+    .results {
+      flex: 1; overflow-y: auto;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .results::-webkit-scrollbar { width: 4px; }
+    .results::-webkit-scrollbar-track { background: transparent; }
+    .results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; color: var(--muted); text-align: center;
+      padding: 40px;
+    }
+    .empty-state svg { opacity: 0.3; }
+    .empty-state p { font-size: 0.88rem; line-height: 1.6; }
+
+    /* Local card */
+    .local-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .local-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+    .local-card.no-web::before  { background: var(--accent2); }
+    .local-card.has-web::before { background: var(--accent); }
+    .local-card.unknown::before { background: var(--warn); }
+
+    .local-card:hover {
+      border-color: var(--accent);
+      transform: translateX(2px);
+    }
+    .local-card.selected {
+      border-color: var(--accent);
+      background: #1a2e28;
+    }
+
+    .card-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 8px; margin-bottom: 8px;
+    }
+    .card-name {
+      font-family: var(--font-head); font-size: 0.95rem; font-weight: 700;
+      color: var(--text); line-height: 1.3;
+    }
+    .badge {
+      padding: 3px 8px; border-radius: 100px;
+      font-size: 0.68rem; font-weight: 600;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .badge.no-web  { background: rgba(255,107,107,0.15); color: var(--accent2); }
+    .badge.has-web { background: rgba(0,229,160,0.15);   color: var(--accent); }
+    .badge.unknown { background: rgba(255,179,71,0.15);  color: var(--warn); }
+
+    .card-type {
+      font-size: 0.72rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .card-addr {
+      font-size: 0.8rem; color: var(--muted);
+      display: flex; align-items: flex-start; gap: 5px;
+    }
+    .card-addr svg { flex-shrink: 0; margin-top: 2px; }
+    .card-phone {
+      font-size: 0.8rem; color: var(--muted);
+      display: flex; align-items: center; gap: 5px;
+      margin-top: 4px;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 32px; color: var(--muted); font-size: 0.88rem;
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Mapa ── */
+    #map {
+      flex: 1;
+      z-index: 1;
+    }
+
+    /* Leaflet overrides */
+    .leaflet-container { background: #0f0f18 !important; }
+    .leaflet-tile { filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.9); }
+
+    /* Popup personalizado */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+      color: var(--text) !important;
+    }
+    .leaflet-popup-tip { background: var(--surface) !important; }
+    .leaflet-popup-content { margin: 16px !important; min-width: 220px; }
+    .popup-name {
+      font-family: var(--font-head); font-size: 1rem; font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .popup-type { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+    .popup-row {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.82rem; color: var(--muted); margin-bottom: 5px;
+    }
+    .popup-row a { color: var(--accent); text-decoration: none; }
+    .popup-row a:hover { text-decoration: underline; }
+    .popup-badge {
+      display: inline-block; padding: 4px 10px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 600; margin-top: 8px;
+    }
+
+    /* Notificación toast */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 20px;
+      font-size: 0.85rem; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease; z-index: 9999;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      header { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-icon">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>LocalScan</h1>
+      <p>Detecta locales sin presencia web</p>
+    </div>
+  </header>
+
+  <div class="app">
+
+    <!-- Panel izquierdo -->
+    <div class="panel">
+
+      <div class="search-area">
+        <div class="search-label">Buscar por ubicación</div>
+        <div class="search-box">
+          <input type="text" class="search-input" id="searchInput"
+            placeholder="Ej: Gracia, Barcelona..." />
+          <button class="btn btn-primary" id="searchBtn" onclick="buscarPorTexto()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            Buscar
+          </button>
+        </div>
+        <button class="btn gps-btn" onclick="usarGPS()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            <circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/>
+          </svg>
+          Usar mi ubicación (GPS)
+        </button>
+
+        <div class="filters">
+          <span class="search-label" style="width:100%; margin-bottom:6px;">Tipo de negocio</span>
+          <button class="filter-chip active" data-type="all" onclick="setFiltro(this,'all')">Todos</button>
+          <button class="filter-chip" data-type="restaurant" onclick="setFiltro(this,'restaurant')">Restaurantes</button>
+          <button class="filter-chip" data-type="shop" onclick="setFiltro(this,'shop')">Tiendas</button>
+          <button class="filter-chip" data-type="beauty" onclick="setFiltro(this,'beauty')">Peluquerías</button>
+          <button class="filter-chip" data-type="health" onclick="setFiltro(this,'health')">Salud</button>
+          <button class="filter-chip" data-type="bar" onclick="setFiltro(this,'bar')">Bares</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar" id="statsBar" style="display:none">
+        <div class="stat">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">Locales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num red" id="statNoWeb">0</div>
+          <div class="stat-label">Sin web</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num green" id="statHasWeb">0</div>
+          <div class="stat-label">Con web</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num warn" id="statUnknown">0</div>
+          <div class="stat-label">Sin datos</div>
+        </div>
+      </div>
+
+      <!-- Lista -->
+      <div class="results" id="resultsList">
+        <div class="empty-state">
+          <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <p>Escribe un barrio o ciudad<br/>y pulsa <strong>Buscar</strong> para encontrar<br/>locales sin presencia web.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    // ── Estado ──────────────────────────────────────────
+    let map, markersLayer;
+    let todosLocales = [];
+    let filtroActivo = 'all';
+
+    // ── Init Mapa ────────────────────────────────────────
+    function initMap(lat = 41.3851, lng = 2.1734, zoom = 14) {
+      if (map) { map.setView([lat, lng], zoom); return; }
+      map = L.map('map').setView([lat, lng], zoom);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+    initMap();
+
+    // ── Iconos personalizados ────────────────────────────
+    function crearIcono(tipo) {
+      const colores = { 'no-web': '#FF6B6B', 'has-web': '#00E5A0', 'unknown': '#FFB347' };
+      const color = colores[tipo] || '#FFB347';
+      return L.divIcon({
+        className: '',
+        html: `<div style="
+          width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+          background:${color};border:2px solid rgba(0,0,0,0.3);
+          box-shadow:0 2px 8px rgba(0,0,0,0.4);
+        "></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+        popupAnchor: [0, -30]
+      });
+    }
+
+    // ── Buscar por texto ─────────────────────────────────
+    async function buscarPorTexto() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) { mostrarToast('⚠️ Escribe una ciudad o barrio'); return; }
+
+      setLoading(true);
+      try {
+        // 1. Geocodificar con Nominatim
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+          { headers: { 'Accept-Language': 'es' } }
+        );
+        const geoData = await geoRes.json();
+        if (!geoData.length) { mostrarToast('❌ No se encontró esa ubicación'); setLoading(false); return; }
+
+        const { lat, lon, boundingbox } = geoData[0];
+        initMap(parseFloat(lat), parseFloat(lon), 15);
+        await buscarLocales(parseFloat(lat), parseFloat(lon), boundingbox);
+      } catch (e) {
+        mostrarToast('❌ Error al buscar. Comprueba tu conexión.');
+      }
+      setLoading(false);
+    }
+
+    // ── Usar GPS ─────────────────────────────────────────
+    function usarGPS() {
+      if (!navigator.geolocation) { mostrarToast('❌ Tu navegador no soporta geolocalización'); return; }
+      setLoading(true);
+      mostrarToast('📡 Obteniendo ubicación...');
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          initMap(lat, lon, 15);
+          await buscarLocales(lat, lon, null);
+          setLoading(false);
+        },
+        () => { mostrarToast('❌ No se pudo obtener ubicación'); setLoading(false); }
+      );
+    }
+
+    // ── Overpass Query ───────────────────────────────────
+    function buildOverpassQuery(lat, lon, bbox) {
+      const radio = 800; // metros
+      const area = bbox
+        ? `(${bbox[0]},${bbox[2]},${bbox[1]},${bbox[3]})`
+        : `(around:${radio},${lat},${lon})`;
+
+      return `
+        [out:json][timeout:25];
+        (
+          node["amenity"~"restaurant|cafe|bar|fast_food|pharmacy|hairdresser|beauty"]${area};
+          node["shop"~"clothes|shoes|bakery|butcher|florist|electronics|books|furniture|supermarket"]${area};
+          way["amenity"~"restaurant|cafe|bar|fast_food|pharmacy|hairdresser|beauty"]${area};
+          way["shop"~"clothes|shoes|bakery|butcher|florist|electronics|books|furniture|supermarket"]${area};
+        );
+        out center 120;
+      `;
+    }
+
+    // ── Buscar locales con Overpass ──────────────────────
+    async function buscarLocales(lat, lon, bbox) {
+      const query = buildOverpassQuery(lat, lon, bbox);
+      try {
+        const res = await fetch('https://overpass-api.de/api/interpreter', {
+          method: 'POST',
+          body: query
+        });
+        const data = await res.json();
+        procesarResultados(data.elements);
+      } catch (e) {
+        mostrarToast('❌ Error al consultar OpenStreetMap');
+      }
+    }
+
+    // ── Procesar resultados ──────────────────────────────
+    function procesarResultados(elements) {
+      todosLocales = elements
+        .filter(el => el.tags && el.tags.name)
+        .map(el => {
+          const tags = el.tags;
+          const lat = el.lat || el.center?.lat;
+          const lon = el.lon || el.center?.lon;
+          const tieneWeb = !!(tags.website || tags['contact:website'] || tags.url);
+          const tipo = detectarTipo(tags);
+          const estado = tieneWeb ? 'has-web' : (tags.website === undefined && !tags['contact:website'] ? 'no-web' : 'unknown');
+
+          return {
+            id: el.id,
+            nombre: tags.name,
+            tipo,
+            tipoRaw: getTipoRaw(tags),
+            lat, lon,
+            web: tags.website || tags['contact:website'] || tags.url || null,
+            telefono: tags.phone || tags['contact:phone'] || null,
+            direccion: formatDireccion(tags),
+            estado,
+            tieneWeb
+          };
+        })
+        .filter(l => l.lat && l.lon);
+
+      renderizarTodo();
+    }
+
+    function detectarTipo(tags) {
+      if (tags.amenity === 'restaurant') return 'Restaurante';
+      if (tags.amenity === 'cafe') return 'Cafetería';
+      if (tags.amenity === 'bar') return 'Bar';
+      if (tags.amenity === 'fast_food') return 'Comida rápida';
+      if (tags.amenity === 'pharmacy') return 'Farmacia';
+      if (tags.amenity === 'hairdresser' || tags.shop === 'hairdresser') return 'Peluquería';
+      if (tags.amenity === 'beauty' || tags.shop === 'beauty') return 'Estética';
+      if (tags.shop === 'clothes') return 'Ropa';
+      if (tags.shop === 'shoes') return 'Zapatos';
+      if (tags.shop === 'bakery') return 'Panadería';
+      if (tags.shop === 'butcher') return 'Carnicería';
+      if (tags.shop === 'florist') return 'Floristería';
+      if (tags.shop === 'electronics') return 'Electrónica';
+      if (tags.shop === 'books') return 'Librería';
+      if (tags.shop === 'supermarket') return 'Supermercado';
+      if (tags.shop) return 'Tienda';
+      return 'Negocio';
+    }
+
+    function getTipoRaw(tags) {
+      if (['restaurant','cafe','bar','fast_food'].includes(tags.amenity)) return 'restaurant';
+      if (['hairdresser','beauty'].includes(tags.amenity) || ['hairdresser','beauty'].includes(tags.shop)) return 'beauty';
+      if (tags.amenity === 'pharmacy') return 'health';
+      if (tags.shop) return 'shop';
+      if (tags.amenity === 'bar') return 'bar';
+      return 'other';
+    }
+
+    function formatDireccion(tags) {
+      const partes = [];
+      if (tags['addr:street']) partes.push(tags['addr:street']);
+      if (tags['addr:housenumber']) partes.push(tags['addr:housenumber']);
+      if (tags['addr:city']) partes.push(tags['addr:city']);
+      return partes.join(', ') || 'Dirección no disponible';
+    }
+
+    // ── Renderizar todo ──────────────────────────────────
+    function renderizarTodo() {
+      const filtrados = filtroActivo === 'all'
+        ? todosLocales
+        : todosLocales.filter(l => {
+            if (filtroActivo === 'restaurant') return ['restaurant','cafe','fast_food'].includes(l.tipoRaw) || l.tipo === 'Restaurante';
+            if (filtroActivo === 'shop') return l.tipoRaw === 'shop';
+            if (filtroActivo === 'beauty') return l.tipoRaw === 'beauty';
+            if (filtroActivo === 'health') return l.tipoRaw === 'health';
+            if (filtroActivo === 'bar') return l.tipoRaw === 'bar' || l.tipo === 'Bar';
+            return true;
+          });
+
+      renderStats(filtrados);
+      renderMarcadores(filtrados);
+      renderLista(filtrados);
+    }
+
+    // ── Stats ────────────────────────────────────────────
+    function renderStats(locales) {
+      const statsBar = document.getElementById('statsBar');
+      statsBar.style.display = 'flex';
+      document.getElementById('statTotal').textContent   = locales.length;
+      document.getElementById('statNoWeb').textContent   = locales.filter(l => l.estado === 'no-web').length;
+      document.getElementById('statHasWeb').textContent  = locales.filter(l => l.estado === 'has-web').length;
+      document.getElementById('statUnknown').textContent = locales.filter(l => l.estado === 'unknown').length;
+    }
+
+    // ── Marcadores ───────────────────────────────────────
+    function renderMarcadores(locales) {
+      markersLayer.clearLayers();
+      locales.forEach(local => {
+        const marker = L.marker([local.lat, local.lon], { icon: crearIcono(local.estado) });
+        marker.bindPopup(buildPopup(local));
+        marker.on('click', () => seleccionarLocal(local.id));
+        markersLayer.addLayer(marker);
+        local._marker = marker;
+      });
+    }
+
+    function buildPopup(local) {
+      const badgeTexto = local.estado === 'has-web' ? '✅ Tiene web' : local.estado === 'no-web' ? '❌ Sin web' : '⚠️ Sin datos';
+      const badgeColor = local.estado === 'has-web' ? 'var(--accent)' : local.estado === 'no-web' ? 'var(--accent2)' : 'var(--warn)';
+      return `
+        <div class="popup-name">${local.nombre}</div>
+        <div class="popup-type">${local.tipo}</div>
+        ${local.direccion !== 'Dirección no disponible' ? `<div class="popup-row"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${local.direccion}</div>` : ''}
+        ${local.telefono ? `<div class="popup-row"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><a href="tel:${local.telefono}">${local.telefono}</a></div>` : ''}
+        ${local.web ? `<div class="popup-row"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><a href="${local.web.startsWith('http') ? local.web : 'https://'+local.web}" target="_blank">Ver web</a></div>` : ''}
+        <div class="popup-badge" style="background:${badgeColor}22;color:${badgeColor}">${badgeTexto}</div>
+      `;
+    }
+
+    // ── Lista ────────────────────────────────────────────
+    function renderLista(locales) {
+      const lista = document.getElementById('resultsList');
+      if (!locales.length) {
+        lista.innerHTML = `<div class="empty-state">
+          <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+          </svg>
+          <p>No se encontraron locales<br/>con este filtro.</p>
+        </div>`;
+        return;
+      }
+
+      // Ordenar: sin web primero
+      const ordenados = [...locales].sort((a, b) => {
+        const ord = { 'no-web': 0, 'unknown': 1, 'has-web': 2 };
+        return ord[a.estado] - ord[b.estado];
+      });
+
+      lista.innerHTML = ordenados.map(local => `
+        <div class="local-card ${local.estado}" id="card-${local.id}" onclick="seleccionarLocal(${local.id})">
+          <div class="card-header">
+            <div class="card-name">${local.nombre}</div>
+            <span class="badge ${local.estado}">
+              ${local.estado === 'has-web' ? '✅ Con web' : local.estado === 'no-web' ? '❌ Sin web' : '⚠️ Sin datos'}
+            </span>
+          </div>
+          <div class="card-type">${local.tipo}</div>
+          <div class="card-addr">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ${local.direccion}
+          </div>
+          ${local.telefono ? `<div class="card-phone">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 012 2.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            ${local.telefono}
+          </div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // ── Seleccionar local ────────────────────────────────
+    function seleccionarLocal(id) {
+      document.querySelectorAll('.local-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.classList.add('selected');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      const local = todosLocales.find(l => l.id === id);
+      if (local?._marker) {
+        map.setView([local.lat, local.lon], 17, { animate: true });
+        local._marker.openPopup();
+      }
+    }
+
+    // ── Filtros ──────────────────────────────────────────
+    function setFiltro(btn, tipo) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      filtroActivo = tipo;
+      if (todosLocales.length) renderizarTodo();
+    }
+
+    // ── Loading ──────────────────────────────────────────
+    function setLoading(val) {
+      const btn = document.getElementById('searchBtn');
+      const lista = document.getElementById('resultsList');
+      btn.disabled = val;
+      if (val) {
+        lista.innerHTML = `<div class="loading"><div class="spinner"></div>Buscando locales...</div>`;
+        document.getElementById('statsBar').style.display = 'none';
+      }
+    }
+
+    // ── Toast ────────────────────────────────────────────
+    function mostrarToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ── Enter en input ───────────────────────────────────
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') buscarPorTexto();
+    });
+  </script>
+</body>
+</html>
